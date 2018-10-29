@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 {
     using namespace stero;
 
-    sf::RenderWindow window(sf::VideoMode(800, 800), "SFML window");
+    sf::RenderWindow window(sf::VideoMode(800, 600), "SFML window");
 
     sf::Uint8* buffer = new sf::Uint8[window.getSize().x*window.getSize().y*4];
 
@@ -29,11 +29,11 @@ int main(int argc, char** argv)
             {1, 1, 1, 1, 1},
                  }, tile_table};
 
-    float angle = 0;
+    float angle = M_PI_2*0;
     float fov = M_PI_2; // 90°
-    Camera cam {{1.5, 2.4}, angle, {fov, fov}};
+    Camera cam {{1.5, 2.5}, angle, {fov, fov}};
 
-    for (size_t i { 0 }; i < 1; ++i)
+    for (size_t i { 0 }; i < 100; ++i)
     {
         render(level, cam, buffer, window.getSize().y, window.getSize().x);
     }
@@ -45,6 +45,7 @@ int main(int argc, char** argv)
     sprt.setOrigin(sf::Vector2f(window.getSize().y, window.getSize().x)/2.f);
     sprt.setPosition((sf::Vector2f)window.getSize()/2.f);
     sprt.setRotation(90);
+    sprt.setScale(1, -1);
     while (window.isOpen())
     {
         sf::Event event;

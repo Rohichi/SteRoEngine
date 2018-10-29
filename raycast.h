@@ -24,6 +24,7 @@ struct HitResult
 {
     sf::Vector2i tile_pos;
     float        wall_pos;
+    float        distance;
     Direction    side;
 };
 

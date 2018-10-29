@@ -28,14 +28,14 @@ HitResult cast_ray(const Ray &ray, const Level &map)
     sf::Vector2f delta, init_pos_off, side_dist;
     sf::Vector2i step;
     step.x = (ray.dir.x < 0) ? -1 :  1;
-    step.y = (ray.dir.y < 0) ?  1 : -1; // because when we look down, y increases since (0,0) is the top-left corner of the screen
+    step.y = (ray.dir.y < 0) ? -1 :  1;
 
-    init_pos_off.x = (step.x == -1) ? ray.pos.x - map_pos.x : map_pos.x + 1 - ray.pos.x;
-    init_pos_off.y = (step.y ==  1) ? ray.pos.y - map_pos.y : map_pos.y + 1 - ray.pos.y;
+    init_pos_off.x = (step.x == -1) ? ray.pos.x - map_pos.x : map_pos.x + 1.0 - ray.pos.x;
+    init_pos_off.y = (step.y == -1) ? ray.pos.y - map_pos.y : map_pos.y + 1.0 - ray.pos.y;
 
     // can return infinity, but it isn't a problem since in this case the DDA will only consider the correct axis
-    delta.x = 1 / std::abs(ray.dir.y); // |1/a| <=> |1/(y/1)| <=> |1/y|
-    delta.y = 1 / std::abs(ray.dir.x); // |a| <=> |1/x|
+    delta.x = 1 / std::abs(ray.dir.x); // |1/a| <=> |1/(y/1)| <=> |1/y|
+    delta.y = 1 / std::abs(ray.dir.y); // |a| <=> |1/x|
 
     side_dist = {init_pos_off.x * delta.x, init_pos_off.y * delta.y};
 
@@ -46,15 +46,15 @@ HitResult cast_ray(const Ray &ray, const Level &map)
     Direction hit_side;
     while (!map.tilemap[map_pos].present())
     {
-        if (side_dist.x > side_dist.y)
+        if (side_dist.x < side_dist.y)
         {
-            side_dist.y += delta.y;
+            side_dist.x += delta.x;
             map_pos.x += step.x;
             hit_side = vertical_side;
         }
         else
         {
-            side_dist.x += delta.x;
+            side_dist.y += delta.y;
             map_pos.y += step.y;
             hit_side = horizontal_side;
         }
@@ -68,17 +68,19 @@ HitResult cast_ray(const Ray &ray, const Level &map)
     HitResult hit;
     hit.side = hit_side;
     hit.tile_pos = map_pos;
+
     if (vertical(hit_side))
     {
-        hit.wall_pos = ray.pos.y + (side_dist.y-delta.y)*(-ray.dir.y);
+        hit.wall_pos = ray.pos.y + (side_dist.x-delta.x)*ray.dir.y - map_pos.y;
+        hit.distance = side_dist.x-delta.x;
     }
     else
     {
-        hit.wall_pos = ray.pos.x + (side_dist.x-delta.x)*ray.dir.x;
+        hit.wall_pos = ray.pos.x + (side_dist.y-delta.y)*ray.dir.x - map_pos.x;
+        hit.distance = side_dist.y-delta.y;
     }
-    hit.wall_pos -= std::floor(hit.wall_pos);
 
-    assert(hit.wall_pos >= 0);
+    assert(hit.wall_pos >= 0 && hit.wall_pos <= 1);
 
     return hit;
 }

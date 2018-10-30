@@ -25,4 +25,12 @@ SOFTWARE.
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <SFML/System/Vector2.hpp>
+
+using real = double;
+namespace sf
+{
+using Vector2r = sf::Vector2<real>;
+}
+
 #endif // CONFIG_H
